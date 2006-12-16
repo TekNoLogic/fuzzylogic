@@ -1,22 +1,12 @@
 ## Interface: 20000
-## LoadOnDemand: 1
 
-## Author: Tekkub Stoutwrithe
 ## Title: Fuzzy Logic
 ## Notes: Easy pet management
-## Version: 2.0
+## Author: Tekkub Stoutwrithe
 ## X-Category: Hunter
-## X-RelSite-WoWI: 4926
-## X-AceForum: 1409
 
-## X-S&D-Class: Hunter
+## OptionalDeps: Dongle
 
-## RequiredDeps: SupplyAndDemand
-## OptionalDeps: Ace2
-
-Libs\AceLibrary\AceLibrary.lua
-Libs\AceOO-2.0\AceOO-2.0.lua
-Libs\AceEvent-2.0\AceEvent-2.0.lua
-Libs\AceAddon-2.0\AceAddon-2.0.lua
+DongleUtils.lua
 
 FuzzyLogic.lua
