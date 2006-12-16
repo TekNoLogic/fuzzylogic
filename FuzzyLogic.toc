@@ -19,4 +19,4 @@ Libs\AceOO-2.0\AceOO-2.0.lua
 Libs\AceEvent-2.0\AceEvent-2.0.lua
 Libs\AceAddon-2.0\AceAddon-2.0.lua
 
-Core.lua
+FuzzyLogic.lua

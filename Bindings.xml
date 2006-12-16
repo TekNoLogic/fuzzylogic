@@ -1,5 +1,0 @@
-<Bindings>
-	<Binding name="Trigger" header="FUZZYLOGIC">
-		FuzzyLogic:Trigger()
-	</Binding>
-</Bindings>
