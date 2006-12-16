@@ -3,6 +3,8 @@
 ## Title: Fuzzy Logic
 ## Notes: Easy pet management
 ## Author: Tekkub Stoutwrithe
+## X-Website: http://code.google.com/p/tekkub-wow/
+## X-Email: tekkub-wow@googlegroups.com
 ## X-Category: Hunter
 
 ## OptionalDeps: Dongle
