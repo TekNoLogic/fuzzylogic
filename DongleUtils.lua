@@ -35,7 +35,7 @@ local g = getfenv(0)
 if not g.DongleStub or g.DongleStub:IsNewerVersion(major, minor) then
 	local lib = setmetatable({}, {
 		__call = function(t,k) 
-			if type(t.versions == "table") and t.versions[k] then 
+			if type(t.versions) == "table" and t.versions[k] then 
 				return t.versions[k] 
 			else
 				error("Cannot find a library with name '"..tostring(k).."'", 2)
@@ -90,7 +90,7 @@ Begin Library Implementation
 ---------------------------------------------------------------------------]]
 
 local majorUtil, majorGrat, majorMetro = "DongleUtils", "GratuityMini", "MetrognomeNano"
-local minor = tonumber(select(3,string.find("$Revision: 77 $", "(%d+)"))) or 1
+local minor = tonumber(select(3,string.find("$Revision: 147 $", "(%d+)")) or 1)
 if not DongleStub:IsNewerVersion(majorUtil, minor) then return end
 
 
@@ -171,9 +171,13 @@ function DongleUtils.SetManyAttributes(self, ...)
 end
 
 
-function DongleUtils.RGBToHex(r, g, b, isNotPerc)
-	if isNotPerc then return string.format("%02x%02x%02x", r, g, b)
-	else return string.format("%02x%02x%02x", r*255, g*255, b*255) end
+function DongleUtils.RGBToHex(r, g, b)
+	return string.format("%02x%02x%02x", r, g, b)
+end
+
+
+function DongleUtils.RGBPercToHex(r, g, b)
+	return string.format("%02x%02x%02x", r*255, g*255, b*255)
 end
 
 
@@ -265,7 +269,7 @@ end
 
 CreateTooltip = function()
 	local tip = CreateFrame("GameTooltip")
-	tip:SetOwner(tip, "ANCHOR_NONE")
+	tip:SetOwner(WorldFrame, "ANCHOR_NONE")
 	tip.Llines, tip.Rlines = {}, {}
 	for i=1,30 do
 		tip.Llines[i], tip.Rlines[i] = tip:CreateFontString(), tip:CreateFontString()
@@ -279,7 +283,7 @@ CreateTooltip = function()
 			self.Rlines[i]:SetText() -- Clear text from right side (ClearLines only hides them)
 			self.L[i], self.R[i] = nil, nil -- Flush the metatable cache
 		end
-		if not self:IsOwned(self) then self:SetOwner(self, "ANCHOR_NONE") end
+		if not self:IsOwned(WorldFrame) then self:SetOwner(WorldFrame, "ANCHOR_NONE") end
 	end
 
 	local methods = {"SetMerchantCostItem", "SetBagItem", "SetAction", "SetAuctionItem", "SetAuctionSellItem", "SetBuybackItem",
