@@ -5,45 +5,110 @@ if select(2, UnitClass("player")) ~= "HUNTER" then
 	return
 end
 
+
+----------------------------
+--      Localization      --
+----------------------------
+
 local L = GetLocale() == "deDE" and {
+	petdead = "Euer Begleiter ist tot.",
 	petmend = "Tier heilen",
 	petcall = "Tier rufen",
 	petdis = "Tier freigeben",
 	petrevive = "Tier wiederbeleben",
+	macro = "/cast [target=pet,dead] Tier wiederbeleben; [nopet] Tier rufen; Tier heilen",
+	macrodead = "/cast [target=pet,dead] Tier wiederbeleben; [nopet] Tier wiederbeleben; Tier heilen",
 } or {
+	petdead = "Your pet is dead.",
 	petmend = "Mend Pet",
 	petcall = "Call Pet",
 	petdis = "Dismiss Pet",
 	petrevive = "Revive Pet",
+	macro = "/cast [target=pet,dead] Revive Pet; [nopet] Call Pet; Mend Pet",
+	macrodead = "/cast [target=pet,dead] Revive Pet; [nopet] Revive Pet; Mend Pet",
 }
+
+
+------------------------------
+--      Are you local?      --
+------------------------------
 
 local healthresh = 0.90 -- Change this to the threshold you want to cast Mend Pet instead of Dismiss
 local binding -- Set this to the key you wish to be bound
-local macro = "/cast [target=pet,dead] ".. L.petrevive.. "; [nopet] ".. L.petcall.. "; ".. L.petmend
+local petIsDead, frame
 
-local frame = CreateFrame("Button", "FuzzyLogicFrame", UIParent, "SecureActionButtonTemplate")
-if binding then SetBindingClick(binding, "FuzzyLogicFrame") end
-frame.SetManyAttributes = DongleStub("DongleUtils").SetManyAttributes
-frame:Hide()
 
-frame:SetScript("PreClick", function()
+-------------------------------------
+--      Namespace Declaration      --
+-------------------------------------
+
+FuzzyLogic = Dongle:New("FuzzyLogic")
+
+
+------------------------------
+--      Initialization      --
+------------------------------
+
+function FuzzyLogic:Initialize()
+	frame = CreateFrame("Button", "FuzzyLogicFrame", UIParent, "SecureActionButtonTemplate")
+	if binding then SetBindingClick(binding, "FuzzyLogicFrame") end
+	frame.SetManyAttributes = DongleStub("DongleUtils").SetManyAttributes
+	frame:Hide()
+
+	frame:SetScript("PreClick", self.PreClick)
+end
+
+
+function FuzzyLogic:Enable()
+	self:RegisterEvent("UI_ERROR_MESSAGE")
+	self:RegisterEvent("PLAYER_REGEN_DISABLED")
+	self:RegisterEvent("UNIT_HEALTH")
+end
+
+
+------------------------------
+--      Event Handlers      --
+------------------------------
+
+function FuzzyLogic:UI_ERROR_MESSAGE(event, msg)
+	if msg == L.petdead then petIsDead = true end
+end
+
+
+function FuzzyLogic:PLAYER_REGEN_DISABLED()
+	self:Debug(1, "Entering Combat")
+	frame:SetManyAttributes("type1", "macro", "macrotext", petIsDead and L.macrodead or L.macro)
+end
+
+
+function FuzzyLogic:UNIT_HEALTH(event, unit)
+	if unit ~= "pet" then return end
+
+	local hp = UnitHealth("pet")
+	if petIsDead and hp > 0 then
+		self:Debug(1, "Pet alive again")
+		petIsDead = false
+	elseif not petIsDead and hp == 0 then
+		self:Debug(1, "Pet died")
+		petIsDead = true
+	end
+end
+
+
+------------------------------
+--      Frame Handlers      --
+------------------------------
+
+function FuzzyLogic.PreClick()
 	if InCombatLockdown() then return end
 
-	-- PetCanBeAbandoned() will return true if your pet is dismissed and false if your pet is dead
-	if UnitExists("pet") and UnitIsDead("pet") or (not UnitExists("pet") and not PetCanBeAbandoned()) then
+	local exists = UnitExists("pet")
+	if exists and UnitIsDead("pet") or (not exists and petIsDead) then
 		frame:SetManyAttributes("type1", "spell", "spell", L.petrevive)
-	elseif UnitExists("pet") and (UnitHealth("pet")/UnitHealthMax("pet") < healthresh) then
+	elseif exists and (UnitHealth("pet")/UnitHealthMax("pet") < healthresh) then
 		frame:SetManyAttributes("type1", "spell", "spell", L.petmend)
-	elseif UnitExists("pet") then frame:SetManyAttributes("type1", "spell", "spell", L.petdis)
+	elseif exists then frame:SetManyAttributes("type1", "spell", "spell", L.petdis)
 	else frame:SetManyAttributes("type1", "spell", "spell", L.petcall) end
-end)
+end
 
-frame:SetScript("PostClick", function()
-	if InCombatLockdown() then return end
-
-	-- PetCanBeAbandoned() will return true if your pet is dismissed and false if your pet is dead
-	if UnitExists("pet") and UnitIsDead("pet") or (not UnitExists("pet") and not PetCanBeAbandoned()) then
-		frame:SetManyAttributes("type1", "spell", "spell", L.petrevive)
-	else frame:SetManyAttributes("type1", "macro", "macrotext", macro) end
-end)
 
