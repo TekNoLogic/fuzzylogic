@@ -12,7 +12,7 @@
         copyright notice, this list of conditions and the following
         disclaimer in the documentation and/or other materials provided
         with the distribution.
-      * Neither the name of the Dongle Development Team nor the names of 
+      * Neither the name of the Dongle Development Team nor the names of
         its contributors may be used to endorse or promote products derived
         from this software without specific prior written permission.
 
@@ -28,8 +28,9 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---------------------------------------------------------------------------]]
+local major = "DongleStub"
+local minor = tonumber(string.match("$Revision: 173 $", "(%d+)") or 1)
 
-local major,minor = "DongleStub", 20061205.3
 local g = getfenv(0)
 
 if not g.DongleStub or g.DongleStub:IsNewerVersion(major, minor) then
@@ -86,11 +87,11 @@ if not g.DongleStub or g.DongleStub:IsNewerVersion(major, minor) then
 end
 
 --[[-------------------------------------------------------------------------
-Begin Library Implementation
+  Begin Library Implementation
 ---------------------------------------------------------------------------]]
 
 local majorUtil, majorGrat, majorMetro = "DongleUtils", "GratuityMini", "MetrognomeNano"
-local minor = tonumber(select(3,string.find("$Revision: 147 $", "(%d+)")) or 1)
+local minor = tonumber(string.match("$Revision: 178 $", "(%d+)") or 1)
 if not DongleStub:IsNewerVersion(majorUtil, minor) then return end
 
 
