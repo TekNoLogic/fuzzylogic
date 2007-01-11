@@ -119,10 +119,10 @@ end
 ---------------------------------------------------------------------------]]
 
 local majorUtil, majorGrat, majorMetro = "DongleUtils", "GratuityMini", "MetrognomeNano"
-local minor = tonumber(string.match("$Revision: 227 $", "(%d+)") or 1)
+local minor = tonumber(string.match("$Revision: 237 $", "(%d+)") or 1)
 
 assert(DongleStub, string.format("DongleUtils requires DongleStub.", major))
-assert(DongleStub and DongleStub:GetVersion() == "DongleStub-Beta0", 
+assert(DongleStub and DongleStub:GetVersion() == "DongleStub-Beta0",
 	string.format("DongleUtils requires DongleStub-Beta0.  You are using an older version.", major))
 
 if not DongleStub:IsNewerVersion(majorUtil, minor) then return end
@@ -137,16 +137,6 @@ local DongleUtils = {}
 
 function DongleUtils:GetVersion()
 	return majorUtil, minor
-end
-
-
-function DongleUtils:Activate(old)
-
-end
-
-
-function DongleUtils:Deactivate(new)
-	DongleUtils = nil
 end
 
 
@@ -268,7 +258,7 @@ function DongleUtils.GetHPSeverity(perc, class)
 end
 
 
-DongleStub:Register(DongleUtils)
+DongleUtils = DongleStub:Register(DongleUtils)
 
 
 ---------------------------------------
@@ -277,30 +267,18 @@ DongleStub:Register(DongleUtils)
 ---------------------------------------
 
 local GratuityMini = {}
-local CreateTooltip
 
 function GratuityMini:GetVersion()
 	return majorGrat, minor
 end
 
 
-function GratuityMini:Activate(old)
-	self.tooltip = old and old.tooltip or CreateTooltip()
-	CreateTooltip = nil
-end
+local function GratuityMini_Activate(new, old)
+	if old then
+		new.tooltip = old.tooltip
+		return
+	end
 
-
-function GratuityMini:Deactivate(new)
-	GratuityMini = nil
-end
-
-
-function GratuityMini:GetTooltip()
-	return self.tooltip
-end
-
-
-CreateTooltip = function()
 	local tip = CreateFrame("GameTooltip")
 	tip:SetOwner(WorldFrame, "ANCHOR_NONE")
 	tip.Llines, tip.Rlines = {}, {}
@@ -354,11 +332,16 @@ CreateTooltip = function()
 		end,
 	})
 
-	return tip
+	new.tooltip = tip
 end
 
 
-DongleStub:Register(GratuityMini)
+function GratuityMini:GetTooltip()
+	return self.tooltip
+end
+
+
+GratuityMini = DongleStub:Register(GratuityMini, GratuityMini_Activate)
 
 
 --------------------------------------------------
@@ -375,33 +358,14 @@ function Metrognome:GetVersion()
 end
 
 
-function Metrognome:Activate(old)
-	self.eventargs = old and old.eventargs or {}
-	self.handlers = old and old.handlers or {}
-	self.frame = old and old.frame or CreateFrame("Frame")
-	handlers, frame, eventargs = self.handlers, self.frame, self.eventargs
+local function Metrognome_Activate(new, old)
+	new.eventargs = old and old.eventargs or {}
+	new.handlers = old and old.handlers or {}
+	new.frame = old and old.frame or CreateFrame("Frame")
+	handlers, frame, eventargs = new.handlers, new.frame, new.eventargs
 	if not old then frame:Hide() end
 	frame.name = "MetrognomeNano Frame"
-	frame:SetScript("OnUpdate", self.OnUpdate)
-
-	if old then
-		self.olds = old.olds or {}
-		if not getmetatable(self.olds) then setmetatable(self.olds, {__mode = "k"}) end
-		self.olds[old] = true
-
-		for o in pairs(self.olds) do
-			for i,v in pairs(self) do
-				if i ~= "GetVersion" and i ~= "Activate" and i ~= "Deactivate" then o[i] = v end
-			end
-		end
-	end
-	self.Activate = nil
-end
-
-
-function Metrognome:Deactivate(new)
-	Metrognome, frame, handlers, eventargs = nil, nil, nil, nil
-	self.Deactivate = nil
+	frame:SetScript("OnUpdate", new.OnUpdate)
 end
 
 
@@ -509,4 +473,5 @@ function Metrognome.OnUpdate(frame, elapsed)
 end
 
 
-DongleStub:Register(Metrognome)
+Metrognome = DongleStub:Register(Metrognome, Metrognome_Activate)
+
