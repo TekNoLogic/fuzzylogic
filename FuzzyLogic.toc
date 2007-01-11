@@ -9,6 +9,7 @@
 
 ## OptionalDeps: Dongle
 
+Dongle.lua
 DongleUtils.lua
 
 FuzzyLogic.lua
