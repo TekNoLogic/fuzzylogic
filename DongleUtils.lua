@@ -28,8 +28,8 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---------------------------------------------------------------------------]]
-local major = "DongleStub"
-local minor = tonumber(string.match("$Revision: 173 $", "(%d+)") or 1)
+local major = "DongleStub-Beta0"
+local minor = tonumber(string.match("$Revision: 221 $", "(%d+)") or 1)
 
 local g = getfenv(0)
 
@@ -37,7 +37,7 @@ if not g.DongleStub or g.DongleStub:IsNewerVersion(major, minor) then
 	local lib = setmetatable({}, {
 		__call = function(t,k) 
 			if type(t.versions) == "table" and t.versions[k] then 
-				return t.versions[k] 
+				return t.versions[k].instance
 			else
 				error("Cannot find a library with name '"..tostring(k).."'", 2)
 			end
@@ -45,45 +45,73 @@ if not g.DongleStub or g.DongleStub:IsNewerVersion(major, minor) then
 	})
 
 	function lib:IsNewerVersion(major, minor)
-		local entry = self.versions and self.versions[major]
+		local versionData = self.versions and self.versions[major]
 		
-		if not entry then return true end
-		local oldmajor,oldminor = entry:GetVersion()
+		if not versionData then return true end
+		local oldmajor,oldminor = versionData.instance:GetVersion()
 		
 		return minor > oldminor
 	end
 	
-	function lib:Register(new)
-		local major,minor = new:GetVersion()
+	local function NilCopyTable(src, dest)
+		for k,v in pairs(dest) do dest[k] = nil end
+		for k,v in pairs(src) do dest[k] = v end
+	end
+
+	function lib:Register(newInstance, activate, deactivate)
+		local major,minor = newInstance:GetVersion()
 		if not self:IsNewerVersion(major, minor) then return false end
-		local old = self.versions and self.versions[major]
-		-- Run the new libraries activation
-		if type(new.Activate) == "function" then
-			new:Activate(old)
+		if not self.versions then self.versions = {} end
+
+		local versionData = self.versions[major]
+		if not versionData then
+			-- New major version
+			versionData = {
+				["instance"] = newInstance,
+				["deactivate"] = deactivate,
+			}
+			
+			self.versions[major] = versionData
+			if type(activate) == "function" then
+				activate(newInstance)
+			end
+			return newInstance
 		end
 		
+		local oldDeactivate = versionData.deactivate
+		local oldInstance = versionData.instance
+		
+		versionData.deactivate = deactivate
+		
+		local skipCopy
+		if type(activate) == "function" then
+			 skipCopy = activate(newInstance, oldInstance)
+		end
+
 		-- Deactivate the old libary if necessary
-		if old and type(old.Deactivate) == "function" then
-			old:Deactivate(new) 
+		if type(oldDeactivate) == "function" then
+			oldDeactivate(oldInstance, newInstance)
 		end
-		
-		self.versions[major] = new
+
+		-- Re-use the old table, and discard the new one
+		if not skipCopy then
+			NilCopyTable(newInstance, oldInstance)
+		end
+		return oldInstance
 	end
 
 	function lib:GetVersion() return major,minor end
 
-	function lib:Activate(old)
-		if old then 
-			self.versions = old.versions
-		else
-			self.versions = {}
+	local function Activate(new, old)
+		if old then
+			new.versions = old.versions
 		end
-		g.DongleStub = self
+		g.DongleStub = new
 	end
 	
 	-- Actually trigger libary activation here
 	local stub = g.DongleStub or lib
-	stub:Register(lib)
+	stub:Register(lib, Activate)
 end
 
 --[[-------------------------------------------------------------------------
@@ -91,9 +119,13 @@ end
 ---------------------------------------------------------------------------]]
 
 local majorUtil, majorGrat, majorMetro = "DongleUtils", "GratuityMini", "MetrognomeNano"
-local minor = tonumber(string.match("$Revision: 178 $", "(%d+)") or 1)
-if not DongleStub:IsNewerVersion(majorUtil, minor) then return end
+local minor = tonumber(string.match("$Revision: 227 $", "(%d+)") or 1)
 
+assert(DongleStub, string.format("DongleUtils requires DongleStub.", major))
+assert(DongleStub and DongleStub:GetVersion() == "DongleStub-Beta0", 
+	string.format("DongleUtils requires DongleStub-Beta0.  You are using an older version.", major))
+
+if not DongleStub:IsNewerVersion(majorUtil, minor) then return end
 
 --------------------------------
 --        DongleUtils         --
