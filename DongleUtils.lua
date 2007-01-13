@@ -118,8 +118,8 @@ end
   Begin Library Implementation
 ---------------------------------------------------------------------------]]
 
-local majorUtil, majorGrat, majorMetro = "DongleUtils", "GratuityMini", "MetrognomeNano"
-local minor = tonumber(string.match("$Revision: 237 $", "(%d+)") or 1)
+local majorUtil, majorGrat, majorMetro = "DongleUtils-Beta0", "GratuityMini-Beta0", "MetrognomeNano-Beta0"
+local minor = tonumber(string.match("$Revision: 240 $", "(%d+)") or 1)
 
 assert(DongleStub, string.format("DongleUtils requires DongleStub.", major))
 assert(DongleStub and DongleStub:GetVersion() == "DongleStub-Beta0",
@@ -369,20 +369,20 @@ local function Metrognome_Activate(new, old)
 end
 
 
-function Metrognome:FireDelayedEvent(event, delay, ...)
-	local id = event..GetTime()
+function Metrognome:SendDelayedMessage(delay, message, ...)
+	local id = message..GetTime()
 
-	self:Register(self, id, "DelayedEventHandler", rate, id, event, ...)
+	self:Register(self, id, "DelayedMessageHandler", rate, id, message, ...)
 	self:Start(id, 1)
 
 	return id
 end
 
 
-function Metrognome:DelayedEventHandler(id, event, ...)
+function Metrognome:DelayedMessageHandler(id, ...)
 	self:Unregister(id)
 
-	if Dongle then Dongle:FireEvent(event, ...) end
+	if Dongle then Dongle:TriggerMessage(...) end
 end
 
 
