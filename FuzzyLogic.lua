@@ -52,7 +52,7 @@ FuzzyLogic = DongleStub("Dongle-Beta0"):New("FuzzyLogic")
 function FuzzyLogic:Initialize()
 	frame = CreateFrame("Button", "FuzzyLogicFrame", UIParent, "SecureActionButtonTemplate")
 	if binding then SetBindingClick(binding, "FuzzyLogicFrame") end
-	frame.SetManyAttributes = DongleStub("DongleUtils").SetManyAttributes
+	frame.SetManyAttributes = DongleStub("DongleUtils-Beta0").SetManyAttributes
 	frame:Hide()
 
 	frame:SetScript("PreClick", self.PreClick)
