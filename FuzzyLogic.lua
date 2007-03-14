@@ -42,7 +42,7 @@ local petIsDead, frame
 --      Namespace Declaration      --
 -------------------------------------
 
-FuzzyLogic = DongleStub("Dongle-Beta0"):New("FuzzyLogic")
+FuzzyLogic = DongleStub("Dongle-Beta1"):New("FuzzyLogic")
 
 
 ------------------------------

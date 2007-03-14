@@ -1,5 +1,5 @@
 --[[-------------------------------------------------------------------------
-  Copyright (c) 2006, Dongle Development Team
+  Copyright (c) 2006-2007, Dongle Development Team
   All rights reserved.
 
   Redistribution and use in source and binary forms, with or without
@@ -119,7 +119,7 @@ end
 ---------------------------------------------------------------------------]]
 
 local majorUtil, majorGrat, majorMetro = "DongleUtils-Beta0", "GratuityMini-Beta0", "MetrognomeNano-Beta0"
-local minor = tonumber(string.match("$Revision: 240 $", "(%d+)") or 1)
+local minor = tonumber(string.match("$Revision: 250 $", "(%d+)") or 1)
 
 assert(DongleStub, string.format("DongleUtils requires DongleStub.", major))
 assert(DongleStub and DongleStub:GetVersion() == "DongleStub-Beta0",
