@@ -38,6 +38,15 @@ local binding -- Set this to the key you wish to be bound
 local petIsDead, frame
 
 
+local function SetManyAttributes(self, ...)
+	for i=1,select("#", ...),2 do
+		local att,val = select(i, ...)
+		if not att then return end
+		self:SetAttribute(att,val)
+	end
+end
+
+
 -------------------------------------
 --      Namespace Declaration      --
 -------------------------------------
@@ -52,7 +61,7 @@ FuzzyLogic = DongleStub("Dongle-1.0-RC3"):New("FuzzyLogic")
 function FuzzyLogic:Initialize()
 	frame = CreateFrame("Button", "FuzzyLogicFrame", UIParent, "SecureActionButtonTemplate")
 	if binding then SetBindingClick(binding, "FuzzyLogicFrame") end
-	frame.SetManyAttributes = DongleStub("DongleUtils-Beta0").SetManyAttributes
+	frame.SetManyAttributes = SetManyAttributes
 	frame:Hide()
 
 	frame:SetScript("PreClick", self.PreClick)
