@@ -51,7 +51,7 @@ end
 --      Namespace Declaration      --
 -------------------------------------
 
-FuzzyLogic = DongleStub("Dongle-1.0-RC3"):New("FuzzyLogic")
+FuzzyLogic = DongleStub("Dongle-1.0"):New("FuzzyLogic")
 
 
 ------------------------------
