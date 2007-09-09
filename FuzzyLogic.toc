@@ -10,6 +10,9 @@
 
 ## OptionalDeps: Dongle
 
+## LoadManagers: AddonLoader
+## X-LoadOn-Class: Hunter
+
 Dongle.lua
 
 FuzzyLogic.lua
