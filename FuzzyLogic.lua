@@ -35,7 +35,7 @@ local L = GetLocale() == "deDE" and {
 
 local healthresh = 0.90 -- Change this to the threshold you want to cast Mend Pet instead of Dismiss
 local binding -- Set this to the key you wish to be bound
-local petIsDead, frame
+local petIsDead, frame, hasImpMendPet
 
 
 local function SetManyAttributes(self, ...)
@@ -72,6 +72,8 @@ function FuzzyLogic:Enable()
 	self:RegisterEvent("UI_ERROR_MESSAGE")
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
 	self:RegisterEvent("UNIT_HEALTH")
+
+	hasImpMendPet = select(5, GetTalentInfo(1, 10)) > 0
 end
 
 
@@ -112,12 +114,16 @@ function FuzzyLogic.PreClick()
 	if InCombatLockdown() then return end
 
 	local exists = UnitExists("pet")
-	if exists and UnitIsDead("pet") or (not exists and petIsDead) then
-		frame:SetManyAttributes("type1", "spell", "spell", L.petrevive)
-	elseif exists and (UnitHealth("pet")/UnitHealthMax("pet") < healthresh) then
-		frame:SetManyAttributes("type1", "spell", "spell", L.petmend)
-	elseif exists then frame:SetManyAttributes("type1", "spell", "spell", L.petdis)
-	else frame:SetManyAttributes("type1", "spell", "spell", L.petcall) end
+	if exists then
+		if UnitIsDead("pet") or (not exists and petIsDead) then
+			frame:SetManyAttributes("type1", "spell", "spell", L.petrevive)
+		elseif (UnitHealth("pet")/UnitHealthMax("pet") < healthresh) or
+		       (hasImpMendPet and UnitDebuff("pet", 1)) then
+			frame:SetManyAttributes("type1", "spell", "spell", L.petmend)
+		else
+			frame:SetManyAttributes("type1", "spell", "spell", L.petdis)
+		end
+	else
+	    frame:SetManyAttributes("type1", "spell", "spell", L.petcall)
+	end
 end
-
-
