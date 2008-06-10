@@ -114,16 +114,15 @@ function FuzzyLogic.PreClick()
 	if InCombatLockdown() then return end
 
 	local exists = UnitExists("pet")
-	if exists then
-		if UnitIsDead("pet") or (not exists and petIsDead) then
-			frame:SetManyAttributes("type1", "spell", "spell", L.petrevive)
-		elseif (UnitHealth("pet")/UnitHealthMax("pet") < healthresh) or
-		       (hasImpMendPet and UnitDebuff("pet", 1)) then
+	if UnitIsDead("pet") or (not exists and petIsDead) then
+		frame:SetManyAttributes("type1", "spell", "spell", L.petrevive)
+	elseif exists then
+		if (UnitHealth("pet")/UnitHealthMax("pet") < healthresh) or (hasImpMendPet and UnitDebuff("pet", 1)) then
 			frame:SetManyAttributes("type1", "spell", "spell", L.petmend)
 		else
 			frame:SetManyAttributes("type1", "spell", "spell", L.petdis)
 		end
 	else
-	    frame:SetManyAttributes("type1", "spell", "spell", L.petcall)
+		frame:SetManyAttributes("type1", "spell", "spell", L.petcall)
 	end
 end
