@@ -1,2 +1,5 @@
+2.4.2.2-Beta
+    Fix rez not working consistantly
+
 2.4.1.1-Beta
     Keep mending the pet out of combat if it's debuffed and you have Improved Mend Pet.
